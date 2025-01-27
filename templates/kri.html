@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>KRI</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+              integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <style>
+            body {
+                font-family: Verdana, Geneva, Tahoma, sans-serif;
+                margin: 20px;
+            }
+            hr {
+                border-style: inset;
+                border-width: 3px;
+                border-color: black;
+                background-color: black;
+            }
+            .highlight {
+                font-weight: bold;
+                color: #e02d16;
+            }
+            .table-container{
+                width: 100%;
+                overflow-x: 1200px;
+            }
+            table{
+                font-size: small;
+            }
+            .required:after {
+                content: " *";
+                color: red;
+            }
+        </style>
+    </head>
+<body>
+    <h3 class="mb-4"><u><b>KRI</b></u></h3>
+
+    <form method="GET" class="mb-4">
+        <label for="search_query"><strong>Search KRI</strong></label>
+        <input type="text" id="search_query" name="search_query" class="form-control" placeholder="Enter KRI question number to search for">
+        <button type="submit" class="btn btn-primary mt-3">Search</button><br>
+    </form>
+
+    <div class="text-end">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-success">Main page</a>
+        <a href="{{ url_for('vuln_tracker') }}" class="btn btn-success">Tracker</a>
+    </div><br>
+
+    <div class="table-container" style="overflow-x:auto;">
+        <table class="table table-bordered border-dark">
+            <thead>
+                <tr>
+                    <th style="background-color: white;"><center>S. No.</center></th>
+                    <th style="background-color: white;"><center>Q. No.</center></th>
+                    <th style="background-color: white;"><center>Question</center></th>
+                    <th style="background-color: white;"><center>AU remarks</center></th>
+                    <th style="background-color: white;"><center>Fincare remarks</center></th>
+                    <th style="background-color: white;"><center>AU percent</center></th>
+                    <th style="background-color: white;"><center>Fincare percent</center></th>
+                    <th style="background-color: white;"><center>Total percent</center></th>
+                    <th style="background-color: white;"><center>Remarks</center></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for kri in kri_entries %}
+                <tr>
+                    <td><center>{{ loop.index }}</center></td>
+                    <td class="highlight"><center>{{ kri.question_no }}</center></td>
+                    <!-- <td class="highlight"><center><span title="{{ kri.question }}">Question: {{ kri.question_no }}</span></center></td> -->
+                    <td><center>{{ kri.question }}</center></td>
+                    <td><center>{{ kri.au_remarks if kri.au_remarks else '' }}</center></td>
+                    <td><center>{{ kri.fincare_remarks if kri.fincare_remarks else '' }}</center></td>
+                    <td><center>{{ kri.au_percent }}</center></td>
+                    <td><center>{{ kri.fincare_percent }}</center></td>
+                    <td><center>{{ kri.total_percent }}</center></td>
+                    <td><center>{{ kri.remarks }}</center></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

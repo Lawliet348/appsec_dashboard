@@ -1,0 +1,21 @@
+https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZThlZjliMjQtZDFkMS00MjQ4LWI2MDYtNDZiYTlmMThjNjI1%40thread.v2/0?context=%7b%22Tid%22%3a%22cb856884-1379-4c62-8016-278f19cc570b%22%2c%22Oid%22%3a%22b92cedf6-14a5-44d3-aedd-b69a8644c92d%22%7d
+
+
+
+Percentage of [Number of open/outstanding findings from security assessments (VA/PT/AppSec) of critical applications pending beyond two months but up to six months to total number of observations from security assessments (VA/PT/AppSec) of critical applications in last six months]
+
+Percentage of [Number of open/outstanding findings from security assessments (VA/PT/AppSec) of critical applications pending beyond six months but up to 12 months to total number of observations from security assessments (VA/PT/AppSec) of critical applications in last 12 months]
+
+Percentage of [web applications not exposed in public domain that are not OWASP Top 10 compliant to total web applications not exposed in public domain in production environment]. For the purpose of this data point, exclude the low risk vulnerabilities.
+
+Percentage of [web applications that are exposed in public domain that are not OWASP Top 10 compliant (as assessed by the bank) to total web Applications that are exposed in public domain]. For the purpose of this data point, exclude the low risk vulnerabilities.
+
+Apply a filter system on the table (similar to MS Excel), where on clicking a table heading, users can choose which entries they want it to display, and has the ability to select multiple values per heading if needed. Unique existing values can be taken from the database. I want to apply filters to:
+
+1. Application name
+2. test type
+3. vulnerability name
+4. Breach status
+5. Severity
+
+Please advice on this change. I have temporarily removed the "Question" field, and instead if you hover your mouse above the question number, it will display the respective question.

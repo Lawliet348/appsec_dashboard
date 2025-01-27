@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vulnerability Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            margin: 20px;
+        }
+        hr {
+            border-style: inset;
+            border-width: 3px;
+            border-color: black;
+            background-color: black;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #e02d16;
+        }
+        .crit_high {
+            font-weight: bold;
+            color: red;
+        }
+        .medium {
+            font-weight: bold;
+            color: #ffbf00;
+        }
+        .low {
+            font-weight: bold;
+            color: #32cd32;
+        }
+        .table-container {
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: auto;
+            position: relative;
+        }
+        table {
+            font-size: small;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .required:after {
+            content: " *";
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <h3 class="mb-4"><u><b>Vulnerability tracker</b></u></h3>
+
+    <form method="POST" class="mb-4">
+        <label for="application_name" class="mt-3 required"><strong>Application name</strong></label>
+        <select id="application_name" name="application_name" class="form-control" required>
+            <option value="" disabled selected>Select an application</option>
+            {% for name in application_names %}
+            <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="test_type" class="mt-3"><strong>Test type</strong></label>
+        <input type="text" id="test_type" name="test_type" class="form-control">
+
+        <label for="vuln_name" class="mt-3 required"><strong>Vulnerability name</strong></label>
+        <input type="text" id="vuln_name" name="vuln_name" class="form-control" required>
+
+        <label for="jira_id" class="mt-3"><strong>Jira ID</strong></label>
+        <input type="text" id="jira_id" name="jira_id" class="form-control">
+
+        <label for="reported_date" class="mt-3 required"><strong>Reported date</strong></label>
+        <input type="date" id="reported_date" name="reported_date" class="form-control" max="{{ current_date }}" required>
+
+        <label for="severity" class="mt-3 required"><strong>Severity</strong></label>
+        <div>
+            <input type="radio" id="critical_sev" name="severity" value="Critical" required>
+            <label for="critical_sev">Critical</label>
+            <input type="radio" id="high" name="severity" value="High" required>
+            <label for="high">High</label>
+            <input type="radio" id="medium" name="severity" value="Medium" required>
+            <label for="medium">Medium</label>
+            <input type="radio" id="low" name="severity" value="Low" required>
+            <label for="low">Low</label>
+        </div>
+
+        <label for="occurence" class="mt-3"><strong>Occurence</strong></label>
+        <input type="text" id="occurence" name="occurence" class="form-control">
+
+        <label for="vuln_status" class="mt-3 required"><strong>Status</strong></label>
+        <div>
+            <input type="radio" id="closed" name="vuln_status" value="Closed" required>
+            <label for="closed">Closed</label>
+            <input type="radio" id="open" name="vuln_status" value="Open" required>
+            <label for="open">Open</label>
+            <input type="radio" id="exception" name="vuln_status" value="Exception" required>
+            <label for="exception">Exception</label>
+            <input type="radio" id="raf" name="vuln_status" value="RAF" required>
+            <label for="raf">RAF</label>
+        </div>
+
+        <label for="closure_date" class="mt-3"><strong>Closure date</strong></label>
+        <input type="date" id="closure_date" name="closure_date" class="form-control" max="{{ current_date }}">
+
+        <label for="close_remarks" class="mt-3"><strong>Remarks</strong></label>
+        <input type="text" id="close_remarks" name="close_remarks" class="form-control">
+
+        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        <hr>
+    </form>
+
+    <script>
+        const vulnStatusRadios = document.querySelectorAll('input[name="vuln_status"]');
+        const closureDateInput = document.getElementById('closure_date');
+
+        function updateClosureDateBehavior() {
+            const selectedStatus = document.querySelector('input[name="vuln_status"]:checked');
+
+            if (!selectedStatus) return;
+
+            const today = new Date().toISOString().split('T')[0];
+
+            if (selectedStatus.value === "Open") {
+                closureDateInput.value = "";
+                closureDateInput.readOnly = true
+                closureDateInput.removeAttribute("required");
+            } else {
+                closureDateInput.disabled = false;
+                closureDateInput.required = true;
+
+                if (selectedStatus.value === "Closed") {
+                    closureDateInput.min = "";
+                    closureDateInput.readOnly = false
+                    closureDateInput.max = today;
+                } else if (selectedStatus.value === "RAF" || selectedStatus.value === "Exception") {
+                    closureDateInput.min = today;
+                    closureDateInput.readOnly = false
+                    closureDateInput.removeAttribute("max");
+                }
+            }
+        }
+
+        vulnStatusRadios.forEach(radio => {
+            radio.addEventListener('change', updateClosureDateBehavior);
+        });
+
+        document.addEventListener('DOMContentLoaded', updateClosureDateBehavior);
+    </script>
+
+    <form method="GET" class="mb-4">
+        <label for="search_query"><strong>Search vulnerability</strong></label>
+        <input type="text" id="search_query" name="search_query" class="form-control"
+            placeholder="Enter application name or vulnerability name to search for">
+        <button type="submit" class="btn btn-primary mt-3">Search</button><br>
+    </form>
+
+    <div class="text-end">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-success">Main page</a>
+        <a href="{{ url_for('kri_display') }}" class="btn btn-success">KRI</a>
+    </div><br>
+
+    <div class="table-container">
+        <table class="table table-bordered border-dark">
+            <thead>
+                <tr>
+                    <th style="background-color: white;"><center>Sno</center></th>
+                    <th style="background-color: white;"><center>Application name</center></th>
+                    <th style="background-color: white;"><center>Test type</center></th>
+                    <th style="background-color: white;"><center>Vulnerability name</center></th>
+                    <th style="background-color: white;"><center>Jira ID</center></th>
+                    <th style="background-color: white;"><center>Reported date</center></th>
+                    <th style="background-color: white;"><center>Ageing</center></th>
+                    <th style="background-color: white;"><center>SLA</center></th>
+                    <th style="background-color: white;"><center>Breach countdown</center></th>
+                    <th style="background-color: white;"><center>Breach status</center></th>
+                    <th style="background-color: white;"><center>Severity</center></th>
+                    <th style="background-color: white;"><center>Occurence</center></th>
+                    <th style="background-color: white;"><center>Vuln status</center></th>
+                    <th style="background-color: white;"><center>Closure date</center></th>
+                    <th style="background-color: white;"><center>Remarks</center></th>
+                    <th style="background-color: white;"><center>Actions</center></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for vuln in vuln_tracker_data %}
+                <tr>
+                    <td><center>{{ loop.index }}</center></td>
+                    <td class="highlight"><center>{{ vuln.application_name }}</center></td>
+                    <td><center>{{ vuln.test_type if vuln.test_type else '' }}</center></td>
+                    <td class="highlight"><center>{{ vuln.vuln_name }}</center></td>
+                    <td><center>{{ vuln.jira_id if vuln.jira_id else '' }}</center></td>
+                    <td><center>{{ vuln.reported_date }}</center></td>
+                    <td><center>{{ vuln.ageing }}</center></td>
+                    <td><center>{{ vuln.sla }}</center></td>
+
+                    {% set breach_date = vuln.reported_date + timedelta(days=vuln.sla) %}
+
+                    {% if vuln.breach_status == "Breached" %}
+                        {% if vuln.vuln_status == "Closed" %}
+                            {% set days_since_breach = (vuln.closure_date - breach_date).days %}
+                            <td><center><span class="medium">Days since breach till closed: {{ days_since_breach }}</span></center></td>
+                        {% else %}
+                            {% set days_since_breach = (current_date - breach_date).days %}
+                            <td><center><span class="crit_high">Days since breach: {{ days_since_breach }}</span></center></td>
+                        {% endif %}
+                    {% else %}
+                        {% if vuln.vuln_status == "Closed" %}
+                            {% set days_since_breach = (vuln.closure_date - breach_date).days %}
+                            <td></td>
+                        {% else %}
+                            {% set days_since_breach = (current_date - breach_date).days %}
+                            <td><center><span class="low">Days till breach: {{ -days_since_breach }}</span></center></td>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if vuln.breach_status == "Breached" %}
+                    <td class="crit_high"><center>{{ vuln.breach_status }}</center></td>
+                    {% else %}
+                    <td class="low"><center>{{ vuln.breach_status }}</center></td>
+                    {% endif %}
+
+                    {% if vuln.severity == "Critical" %}
+                    <td class="crit_high"><center>{{ vuln.severity }}</center></td>
+                    {% elif vuln.severity == "High" %}
+                    <td class="crit_high"><center>{{ vuln.severity }}</center></td>
+                    {% elif vuln.severity == "Medium" %}
+                    <td class="medium"><center>{{ vuln.severity }}</center></td>
+                    {% else %}
+                    <td class="low"><center>{{ vuln.severity }}</center></td>
+                    {% endif %}
+
+                    <td><center>{{ vuln.occurence if vuln.occurence else '' }}</center></td>
+                    <td><center>{{ vuln.vuln_status }}</center></td>
+                    <td><center>{{ vuln.closure_date if vuln.closure_date else '' }}</center></td>
+                    <td>
+                        <center>
+                            {{ vuln.close_remarks if vuln.close_remarks else '' }}
+                            {% if vuln.close_remarks %}
+                                <br>
+                            {% endif %}
+                            {% if vuln.vuln_status in ['RAF', 'Exception'] %}
+                                {% set today = current_date %}
+                                {% if vuln.closure_date %}
+                                    {% set days_difference = (vuln.closure_date - today).days %}
+                                    {% if days_difference > 0 %}
+                                        (<span class="low">Days till expiry: {{ days_difference }}</span>)
+                                    {% else %}
+                                        (<span class="crit_high">Days since expiry: {{ -days_difference }}</span>)
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        </center>
+                    </td>
+                    <td><center><a href="{{ url_for('edit_vuln', id=vuln.id) }}" class="btn btn-warning btn-sm">Edit</a></center></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
